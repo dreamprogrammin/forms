@@ -1,13 +1,33 @@
 <script setup>
-import {reactive} from 'vue'
+import {reactive, computed} from 'vue'
+import {email, required} from "./utils/i18n-validators.js";
 const form = reactive({
   name: null,
   email: null,
   massage: null,
   password: null,
   currentPassword: null,
-  checkbox: null
+  checkbox: null,
+  pending: null
 })
+const rules = computed(() => ({
+  name: {
+    required
+  },
+  email: {
+    required,
+    email
+  },
+  massage : {
+    required,
+  },
+  password: {
+    required
+  },
+  currentPassword: {
+    required
+  }
+}))
 </script>
 
 <template>
@@ -51,7 +71,7 @@ const form = reactive({
       </div>
     </div>
     <div class="control mt-4 mx-auto">
-      <button class="button is-link" @click="onSubmit">
+      <button class="button is-link" :class="{'is-loading': form.pending}" :disabled="form.pending" @click="onSubmit">
         Отправить
       </button>
     </div>

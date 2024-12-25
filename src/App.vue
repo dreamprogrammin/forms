@@ -1,10 +1,12 @@
 <script setup>
 import {reactive, computed} from 'vue'
-import {email, required} from "./utils/i18n-validators.js";
+import {email, maxLength, minLength, required, requiredPhone, sameAs} from "./utils/i18n-validators.js";
+import { vMaska } from 'maska/vue';
 const form = reactive({
   name: null,
   email: null,
-  massage: null,
+  phone: null,
+  message: null,
   password: null,
   currentPassword: null,
   checkbox: null,
@@ -12,68 +14,96 @@ const form = reactive({
 })
 const rules = computed(() => ({
   name: {
-    required
+    required,
   },
   email: {
     required,
     email
   },
-  massage : {
+  phone : {
     required,
+    requiredPhone: requiredPhone(18)
+  },
+  message : {
+    required,
+    minLength: minLength(10),
   },
   password: {
-    required
+    required,
+    minLength: minLength(8),
+    maxLength: maxLength(15)
   },
   currentPassword: {
-    required
+    required,
+    minLength: minLength(8),
+    maxLength: maxLength(15),
+    sameAs: sameAs(form.password)
+  },
+  checkbox: {
+    required,
+    sameAs: sameAs(true)
   }
 }))
+
+const onSubmit = () => console.log('hi')
+</script>
+<script>
+export default {
+   directive : {
+    maska: vMaska
+   }
+}
 </script>
 
 <template>
   <div class="container">
-    <div class="fields">
-      <label class="label">Имя</label>
-    </div>
-    <div class="control">
-      <input class="input" v-model="form.name" type="text" placeholder="Введите имя" />
-    </div>
-    <div class="fields">
-      <label class="label">Почта</label>
-    </div>
-    <div class="control">
-      <input class="input" v-model="form.email" type="text" placeholder="Введите email" />
-    </div>
-    <div class="fields">
-      <label class="label">Сообщение</label>
-    </div>
-    <div class="control">
-      <textarea class="textarea" v-model="form.massage" type="text" placeholder="Введите сообщение" />
-    </div>
-    <div class="fields">
-      <label class="label">Пароль</label>
-    </div>
-    <div class="control">
-      <input class="input" v-model="form.password" type="password" placeholder="Введите пароль" />
-    </div>
-    <div class="fields">
-      <label class="label">Повторите пароль</label>
-    </div>
-    <div class="control">
-      <input class="input" v-model="form.currentPassword" type="text" placeholder="Повторите пароль" />
-    </div>
     <div class="field">
+      <label class="label">
+        Имя
+      </label>
       <div class="control">
-        <label class="label">
-          <input v-model="form.checkbox" type="checkbox">
-          я соглашаюсь<a href="#">правилами сообщества</a>
-        </label>
+        <input class="input" type="text" v-model="form.name">
       </div>
     </div>
-    <div class="control mt-4 mx-auto">
-      <button class="button is-link" :class="{'is-loading': form.pending}" :disabled="form.pending" @click="onSubmit">
-        Отправить
-      </button>
+    <div class="field">
+      <label class="label">email</label>
+      <div class="control">
+        <input class="input" type="email" v-model="form.email">
+      </div> 
+    </div>
+    <div class="field">
+      <label class="label">Номер телефона</label>
+      <div class="control">
+        <input class="input" type="text" v-maska data-maska="+7 (###) - ### - ## - ##" v-model="form.phone">
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">Сообщение</label>
+      <div class="control">
+        <textarea class="textarea" v-model="form.message"></textarea>
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">Пароль</label>
+      <div class="control">
+        <input class="input" type="password" v-model="form.password">
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">Повторите пароль</label>
+      <div class="control">
+        <input class="input" type="password" v-model="form.currentPassword">
+      </div>
+    </div>
+    <div class="field">
+      <label class="checkbox">
+        <input type="checkbox" v-model="form.checkbox">
+          я соглашаюсь с <a href="#">условие сайта</a>
+      </label>
+    </div>
+
+    <div class="control mx-auto mt-2">
+      <button @click="onSubmit" :disabled="form.pending" :class="{'is-loading' : form.pending}" class="button is-link">Отправить</button>
     </div>
   </div>
 </template>

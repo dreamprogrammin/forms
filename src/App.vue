@@ -2,6 +2,7 @@
 import {reactive, computed} from 'vue'
 import {email, maxLength, minLength, required, requiredPhone, sameAs} from "./utils/i18n-validators.js";
 import { vMaska } from 'maska/vue';
+import useVuelidate from '@vuelidate/core';
 const form = reactive({
   name: null,
   email: null,
@@ -44,6 +45,23 @@ const rules = computed(() => ({
     sameAs: sameAs(true)
   }
 }))
+
+const v = useVuelidate(rules, form)
+
+const validate = ({prop}) => {
+  const error = v.value.$errors.find((el) => el.$property === prop)
+
+  return error && error.$message
+}
+
+const resetForm = () => {
+  Object.keys(form).forEach((key) => {
+    form[key] = null
+  })
+
+  v.validate.$reset()
+}
+
 
 const onSubmit = () => console.log('hi')
 </script>

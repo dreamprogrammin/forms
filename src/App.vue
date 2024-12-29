@@ -23,7 +23,7 @@ const rules = computed(() => ({
   },
   phone : {
     required,
-    requiredPhone: requiredPhone(18)
+    requiredPhone: requiredPhone(24)
   },
   message : {
     required,
@@ -59,15 +59,44 @@ const resetForm = () => {
     form[key] = null
   })
 
-  v.validate.$reset()
+  v.value.$reset()
 }
 
 
-const onSubmit = () => console.log('hi')
+const onSubmit = async () => {
+  v.value.$touch
+
+  if (form.pending) return
+
+  if (await v.value.$validate()) {
+    form.pending = true
+
+    try {
+      const payload = {
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      message: form.message,
+      password: form.password,
+      currentPassword: form.currentPassword,
+      checkbox: form.checkbox
+    }
+    setTimeout(() => {
+    console.log('запрос отправлен')
+    console.log(payload)
+
+    resetForm()
+    },2500)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  console.log('123a')
+}
 </script>
 <script>
 export default {
-   directive : {
+   directives : {
     maska: vMaska
    }
 }
@@ -80,42 +109,113 @@ export default {
         Имя
       </label>
       <div class="control">
-        <input class="input" type="text" v-model="form.name">
+        <input 
+          class="input" 
+          @focus="v.$reset()"
+          :class="{'is-danger': !!validate({prop: 'name'})}" 
+          type="text" 
+          v-model="form.name">
       </div>
+      <p 
+        v-if="!!validate({prop : 'name'})"
+        class="help is-danger"
+      >
+        {{ validate({prop: 'name'}) }}
+      </p>
     </div>
     <div class="field">
       <label class="label">email</label>
       <div class="control">
-        <input class="input" type="email" v-model="form.email">
+        <input 
+          class="input"
+          @focus="v.$reset()"
+          :class="{'is-danger': !!validate({prop: 'email'})}" 
+          type="email"
+          v-model="form.email">
       </div> 
+      <p 
+        v-if="!!validate({prop : 'email'})"
+        class="help is-danger"
+      >
+        {{ validate({prop: 'email'}) }}
+      </p>
     </div>
     <div class="field">
       <label class="label">Номер телефона</label>
       <div class="control">
-        <input class="input" type="text" v-maska data-maska="+7 (###) - ### - ## - ##" v-model="form.phone">
+        <input 
+          class="input"
+          @focus="v.$reset()"
+          :class="{'is-danger': !!validate({prop: 'phone'})}"  
+          type="text" 
+          v-maska
+          data-maska="+7 (###) - ### - ## - ##"
+          v-model="form.phone">
       </div>
+      <p 
+        v-if="!!validate({prop : 'phone'})"
+        class="help is-danger"
+      >
+        {{ validate({prop: 'phone'}) }}
+      </p>
     </div>
     <div class="field">
       <label class="label">Сообщение</label>
       <div class="control">
-        <textarea class="textarea" v-model="form.message"></textarea>
+        <textarea 
+          @focus="v.$reset()"
+          :class="{'is-danger': !!validate({prop: 'message'})}"  
+          class="textarea" 
+          v-model="form.message">
+        </textarea>
       </div>
+      <p 
+        v-if="!!validate({prop : 'message'})"
+        class="help is-danger"
+      >
+        {{ validate({prop: 'message'}) }}
+      </p>
     </div>
     <div class="field">
       <label class="label">Пароль</label>
       <div class="control">
-        <input class="input" type="password" v-model="form.password">
+        <input 
+          class="input"
+          @focus="v.$reset()"
+          :class="{'is-danger': !!validate({prop: 'password'})}"   
+          type="password" 
+          v-model="form.password">
       </div>
+      <p 
+        v-if="!!validate({prop : 'password'})"
+        class="help is-danger"
+      >
+        {{ validate({prop: 'password'}) }}
+      </p>
     </div>
     <div class="field">
       <label class="label">Повторите пароль</label>
       <div class="control">
-        <input class="input" type="password" v-model="form.currentPassword">
+        <input
+          @focus="v.$reset()"
+          :class="{'is-danger': !!validate({prop: 'currentPassword'})}"   
+          class="input" 
+          type="password" 
+          v-model="form.currentPassword">
       </div>
+      <p 
+        v-if="!!validate({prop : 'currentPassword'})"
+        class="help is-danger"
+      >
+        {{ validate({prop: 'currentPassword'}) }}
+      </p>
     </div>
     <div class="field">
-      <label class="checkbox">
-        <input type="checkbox" v-model="form.checkbox">
+      <label 
+        class="checkbox"
+        :class="{'has-text-danger': !!validate({prop: 'checkbox'})}"  
+        >
+        <input type="checkbox" v-model="form.checkbox" @focus="v.$reset()">
           я соглашаюсь с <a href="#">условие сайта</a>
       </label>
     </div>
